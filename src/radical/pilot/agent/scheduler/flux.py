@@ -4,6 +4,8 @@ __license__   = 'MIT'
 
 
 import os
+import shlex
+import textwrap
 
 import radical.utils        as ru
 
@@ -51,6 +53,17 @@ class Flux(AgentSchedulingComponent):
         self._pwd  = os.getcwd()
 
         AgentSchedulingComponent.__init__(self, cfg, session)
+
+        # create execution helper, i.e., a small shell script which manages I/O
+        # redirection for us (Flux does not support it just yet)
+        self._helper = textwrap.dedent('''\
+                #/bin/sh
+
+                exec >>%(log)s 2>&1
+
+                %(cmd)s 1>"%(out)s" 2>"%(err)s"
+
+                ''')
 
 
     # --------------------------------------------------------------------------
@@ -401,19 +414,28 @@ class Flux(AgentSchedulingComponent):
         stdout = td.get('stdout') or '%s/%s.out' % (sbox, uid)
         stderr = td.get('stderr') or '%s/%s.err' % (sbox, uid)
 
-        cmd  = '%s %s 1>%s 2>%s' % (td['executable'], ' '.join(td['arguments']),
-                                    stdout, stderr)
+        args = ' '.join([shlex.quote(arg) for arg in td['arguments']])
+        cmd  = '%s %s' % (td['executable'], args)
+
+        ru.rec_makedir(sbox)
+        exec_script = '%s/%s.flux.sh' % (sbox, uid)
+        with open(exec_script, 'w') as fout:
+            fout.write(self._helper % {'out': stdout,
+                                       'err': stderr,
+                                       'log': '%s.flux.log' % uid,
+                                       'cmd': cmd})
+        os.chmod(exec_script, 0o0755)
         spec = {
             'tasks': [{
                 'slot' : 'task',
                 'count': {
                     'per_slot': 1
                 },
-                'command': ['/bin/sh', '-c', cmd],
+                'command': [exec_script],
             }],
             'attributes': {
                 'system': {
-                    'cwd'     : task['task_sandbox_path'],
+                    'cwd'     : sbox,
                     'duration': 0,
                 }
             },
