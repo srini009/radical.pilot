@@ -86,6 +86,7 @@ class Flux(AgentSchedulingComponent):
     #
     def _configure(self):
 
+<<<<<<< HEAD
         self.gtod   = "%s/gtod" % self._pwd
         self.prof   = "%s/prof" % self._pwd
 
@@ -98,6 +99,8 @@ class Flux(AgentSchedulingComponent):
         flux_url   = flux_env['FLUX_URI']
         self._flux = flux.Flux(url=flux_url)
 
+=======
+>>>>>>> devel
         # don't advance tasks via the component's `advance()`, but push them
         # toward the executor *without state change* - state changes are
         # performed in retrospect by the executor, based on the scheduling and
@@ -107,10 +110,11 @@ class Flux(AgentSchedulingComponent):
         cfg     = ru.read_json(fname)
         self._q = ru.zmq.Putter(qname, cfg['put'])
 
-        # create job spec via the flux LM
-        self._lm = LaunchMethod.create(name    = 'FLUX',
-                                       cfg     = self._cfg,
-                                       session = self._session)
+        lm_cfg  = self._cfg.resource_cfg.launch_methods.get('FLUX')
+        lm_cfg['pid']       = self._cfg.pid
+        lm_cfg['reg_addr']  = self._cfg.reg_addr
+        self._lm            = LaunchMethod.create('FLUX', lm_cfg, self._cfg,
+                                                  self._log, self._prof)
 
 
     # --------------------------------------------------------------------------
@@ -118,11 +122,10 @@ class Flux(AgentSchedulingComponent):
     def work(self, tasks):
 
         # overload the base class work method
-
-        from flux import job as flux_job
-
+        self._log.debug('submit tasks?')
         self.advance(tasks, rps.AGENT_SCHEDULING, publish=True, push=False)
 
+<<<<<<< HEAD
         for task in ru.as_list(tasks):
 
             try:
@@ -402,6 +405,19 @@ class Flux(AgentSchedulingComponent):
   #                 new_env.pop(e, None)
   #
   #     return new_env
+=======
+        # FIXME: need actual job description, obviously
+        jds = [self.task_to_spec(task) for task in tasks]
+        self._log.debug('submit tasks: %s', [jd for jd in jds])
+        jids = self._lm.fh.submit_jobs([jd for jd in jds])
+        self._log.debug('submitted tasks')
+
+        for task, jid in zip(tasks, jids):
+            self._log.debug('submit tasks %s -> %s', task['uid'], jid)
+            task['flux_id'] = jid
+
+        self._q.put(tasks)
+>>>>>>> devel
 
 
     # --------------------------------------------------------------------------
@@ -419,7 +435,7 @@ class Flux(AgentSchedulingComponent):
 
         ru.rec_makedir(sbox)
         exec_script = '%s/%s.flux.sh' % (sbox, uid)
-        with open(exec_script, 'w') as fout:
+        with ru.ru_open(exec_script, 'w') as fout:
             fout.write(self._helper % {'out': stdout,
                                        'err': stderr,
                                        'log': '%s.flux.log' % uid,
@@ -447,15 +463,15 @@ class Flux(AgentSchedulingComponent):
                 'with' : [{
                     'count': td['cpu_threads'],
                     'type' : 'core'
-                # }, {
-                #     'count': td['gpu_processes'],
-                #     'type' : 'gpu'
+                    # }, {
+                    #     'count': td['gpu_processes'],
+                    #     'type' : 'gpu'
                 }]
             }]
         }
 
         if td['gpu_processes']:
-            spec['resources']['with'].append({
+            spec['resources'][0]['with'].append({
                     'count': td['gpu_processes'],
                     'type' : 'gpu'})
 

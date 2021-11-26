@@ -2,6 +2,7 @@
 __copyright__ = "Copyright 2016, http://radical.rutgers.edu"
 __license__   = "MIT"
 
+<<<<<<< HEAD
 import os
 import time
 import signal
@@ -9,6 +10,8 @@ import signal
 import threading       as mt
 import subprocess      as sp
 
+=======
+>>>>>>> devel
 import radical.utils   as ru
 
 from .base import LaunchMethod
@@ -20,29 +23,22 @@ class Flux(LaunchMethod):
 
     # --------------------------------------------------------------------------
     #
-    def __init__(self, name, cfg, session):
+    def __init__(self, name, lm_cfg, rm_info, session, prof):
 
-        LaunchMethod.__init__(self, name, cfg, session)
-
-
-    # --------------------------------------------------------------------------
-    #
-    def construct_command(self, t, launch_script_hop):
-
-        # this work is currently performed by the scheduler
-        assert(False)
+        LaunchMethod.__init__(self, name, lm_cfg, rm_info, session, prof)
 
 
     # --------------------------------------------------------------------------
     #
-    def get_rank_cmd(self):
+    def _terminate(self):
 
-        # this work is currently performed by the scheduler
-        assert(False)
+        if self._fh:
+            self._fh.reset()
 
 
     # --------------------------------------------------------------------------
     #
+<<<<<<< HEAD
     @classmethod
     def rm_shutdown_hook(cls, name, cfg, rm, lm_info, log, prof):
 
@@ -90,46 +86,74 @@ class Flux(LaunchMethod):
         hostname = None
         flux_env = dict()
         while True:
+=======
+    def _init_from_scratch(self, env, env_sh):
 
-            line = ru.as_string(proc.stdout.readline().strip())
-            log.debug('flux: %s', line)
+        self._prof.prof('flux_start')
+        self._fh = ru.FluxHelper()
 
-            if line.startswith('export '):
-                k, v = line.split(' ', 1)[1].strip().split('=', 1)
-                flux_env[k] = v.strip('"')
-                log.debug('%s = %s' % (k, v.strip('"')))
+      # self._fh.start_flux(env=env)  # FIXME
 
+        self._log.debug('starting flux')
+        self._fh.start_flux()
+>>>>>>> devel
+
+        self._details = {'flux_uri': self._fh.uri,
+                         'flux_env': self._fh.env}
+
+        self._prof.prof('flux_start_ok')
+
+<<<<<<< HEAD
             elif line.startswith('hostname:'):
                 hostname = line.split(':')[1].strip()
                 log.debug('hostname = %s' % hostname)
 
             elif line == 'OK':
                 break
+=======
+        lm_info = {'env'    : env,
+                   'env_sh' : env_sh,
+                   'details': self._details}
+>>>>>>> devel
 
+        return lm_info
 
+<<<<<<< HEAD
         assert('FLUX_URI' in flux_env)
         assert(hostname)
 
         # TODO check perf implications
         flux_url = ru.Url(flux_env['FLUX_URI'])
+=======
+>>>>>>> devel
 
-        # switch to ssh when more than one node are used for the agent
-        if len(rm.agent_nodes) > 1:
-            flux_url.host   = ru.get_hostname()
-            flux_url.scheme = 'ssh'
+    # --------------------------------------------------------------------------
+    #
+    def _init_from_info(self, lm_info):
 
+<<<<<<< HEAD
         flux_env['FLUX_URI'] = str(flux_url)
         prof.prof('flux_started')
 
+=======
+        self._prof.prof('flux_reconnect')
 
-        # ----------------------------------------------------------------------
-        def _watch_flux(flux_env):
+        self._env     = lm_info['env']
+        self._env_sh  = lm_info['env_sh']
+        self._details = lm_info['details']
+>>>>>>> devel
 
+        self._fh = ru.FluxHelper()
+        self._fh.connect_flux(uri=self._details['flux_uri'])
+
+<<<<<<< HEAD
             log.info('starting flux watcher')
+=======
+        self._prof.prof('flux_reconnect_ok')
+>>>>>>> devel
 
-            for k,v in flux_env.items():
-                os.environ[k] = v
 
+<<<<<<< HEAD
             try:
 
                 while True:
@@ -149,42 +173,33 @@ class Flux(LaunchMethod):
 
             # FIXME: trigger termination
         # ----------------------------------------------------------------------
-
-        flux_watcher = mt.Thread(target=_watch_flux, args=[flux_env])
-        flux_watcher.daemon = True
-        flux_watcher.start()
-
-        log.info("flux startup successful: [%s]", flux_env['FLUX_URI'])
-
-        lm_info = {'flux_env': flux_env,
-                   'flux_pid': proc.pid}
-
-        return lm_info
-
-
+=======
     # --------------------------------------------------------------------------
     #
-    def _configure(self):
+    @property
+    def fh(self):
+        return self._fh
 
-        pass
+
+    def can_launch(self, task):
+        raise RuntimeError('method cannot be used on Flux LM')
 
 
-  # # --------------------------------------------------------------------------
-  # #
-  # def construct_command(self, task, launch_script_hop=None):
-  #
-  #     uid          = task['uid']
-  #     td          = task['description']
-  #     procs        = td['cpu_processes']
-  #     cpn          = td['cpu_threads']
-  #     gpn          = td['gpu_processes']
-  #     task_exec    = td['executable']
-  #     task_args    = td.get('arguments') or list()
-  #     task_sandbox = task['task_sandbox_path']
-  #
-  #     self._log.debug('prep %s', uid)
-  #
-  #     return spec, None
+    def get_launch_cmds(self, task, exec_path):
+        raise RuntimeError('method cannot be used on Flux LM')
+>>>>>>> devel
+
+
+    def get_launcher_env(self):
+        raise RuntimeError('method cannot be used on Flux LM')
+
+
+    def get_rank_cmd(self):
+        raise RuntimeError('method cannot be used on Flux LM')
+
+
+    def get_rank_exec(self, task, rank_id, rank):
+        raise RuntimeError('method cannot be used on Flux LM')
 
 
 # ------------------------------------------------------------------------------

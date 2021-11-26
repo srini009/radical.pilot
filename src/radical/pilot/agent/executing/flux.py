@@ -13,9 +13,11 @@ import errno
 import threading     as mt
 import radical.utils as ru
 
-from ...  import states    as rps
-from ...  import constants as rpc
+from ...   import states    as rps
+from ...   import constants as rpc
 
+from ..    import LaunchMethod
+from ..    import ResourceManager
 from .base import AgentExecutingComponent
 
 
@@ -74,6 +76,14 @@ class Flux(AgentExecutingComponent) :
                            'INACTIVE': rps.AGENT_STAGING_OUTPUT_PENDING,
                            'PRIORITY': None,
                           }
+
+        # we get an instance of the resource manager (init from registry info)
+        self._rm = ResourceManager.create(name=self._cfg.resource_manager,
+                                          cfg=self._cfg, log=self._log,
+                                          prof=self._prof)
+
+      # assert(self._rm.from_info)
+
 
         # thread termination signal
         self._term    = mt.Event()
@@ -154,12 +164,20 @@ class Flux(AgentExecutingComponent) :
     #
     def _listen(self):
 
-        flux_handle = None
-
+        lm_cfg  = self._cfg.resource_cfg.launch_methods.get('FLUX')
+        lm_cfg['pid']       = self._cfg.pid
+        lm_cfg['reg_addr']  = self._cfg.reg_addr
+        lm                  = LaunchMethod.create('FLUX', lm_cfg, self._cfg,
+                                                  self._log, self._prof)
         try:
+<<<<<<< HEAD
             # thread local initialization
             flux_handle = self._get_flux_handle()
 
+=======
+
+            flux_handle = lm.fh.get_handle()
+>>>>>>> devel
             flux_handle.event_subscribe('job-state')
 
             # FIXME: how tot subscribe for task return code information?
@@ -219,6 +237,7 @@ class Flux(AgentExecutingComponent) :
         uid = task['uid']
         for event in events:
 
+<<<<<<< HEAD
             self._log.debug('=== event: %s',  event)
 
             flux_id    = event[0]
@@ -228,6 +247,10 @@ class Flux(AgentExecutingComponent) :
             # we don't need to do anything on most events and actually only wait
             # for task completion (`INACTIVE`)
             state = self._event_map[flux_state]
+=======
+            flux_state = event[1]  # event: flux_id, flux_state
+            state = self._event_map.get(flux_state)
+>>>>>>> devel
 
             if state is None:
                 # ignore this state transition

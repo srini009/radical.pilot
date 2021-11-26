@@ -24,50 +24,46 @@
         "agent_scheduler"             : "CONTINUOUS",
       # "agent_scheduler"             : "CONTINUOUS_COLO",
         "agent_spawner"               : "POPEN",
-        "agent_launch_method"         : "FORK",
-        "task_launch_method"          : "FORK",
-        "mpi_launch_method"           : "MPIEXEC",
+        "launch_methods"              : {
+                                         "order"  : ["FORK", "MPIEXEC", "MPIRUN"],
+                                         "FORK"   : {},
+                                         "MPIEXEC": {},
+                                         "MPIRUN" : {}
+                                        },
         "rp_version"                  : "local",
+      # "virtenv_mode"                : "local",
         "virtenv_mode"                : "create",
         "python_dist"                 : "default",
         "cores_per_node"              : 8,
         "gpus_per_node"               : 1,
         "lfs_path_per_node"           : "/tmp",
         "lfs_size_per_node"           : 1024,
-        "memory_per_node"             : 4096,
+        "mem_per_node"                : 4096,
         "fake_resources"              : true
     },
 
     "localhost_test": {
         "description"                 : "Your local machine.",
         "notes"                       : "To use the ssh schema, make sure that ssh access to localhost is enabled.",
-        "schemas"                     : ["local", "ssh"],
-        "ssh"                         :
-        {
-            "job_manager_endpoint"    : "ssh://localhost/",
-            "filesystem_endpoint"     : "sftp://localhost/"
-        },
+        "schemas"                     : ["local"],
         "local"                       :
         {
             "job_manager_endpoint"    : "fork://localhost/",
             "filesystem_endpoint"     : "file://localhost/"
         },
-        "pre_bootstrap_1"             : [
-            "export RP_APP_TUNNEL_ADDR=144.76.72.175:27017",
-            "echo  $RP_APP_TUNNEL_ADDR"
-        ],
         "default_remote_workdir"      : "$HOME",
         "resource_manager"            : "FORK",
         "agent_config"                : "default",
         "agent_scheduler"             : "CONTINUOUS",
-      # "agent_scheduler"             : "CONTINUOUS_COLO",
         "agent_spawner"               : "POPEN",
-        "agent_launch_method"         : "FORK",
-        "task_launch_method"          : "FORK",
-        "mpi_launch_method"           : "MPIEXEC",
-        "rp_version"                  : "installed",
-        "virtenv_mode"                : "local",
+        "launch_methods"              : {
+                                         "order"  : ["FORK", "MPIEXEC"],
+                                         "FORK"   : {},
+                                         "MPIEXEC": {}
+        },
         "python_dist"                 : "default",
+        "virtenv_mode"                : "local",
+        "rp_version"                  : "installed",
         "cores_per_node"              : 2,
         "gpus_per_node"               : 1,
         "lfs_path_per_node"           : "/tmp",
@@ -94,9 +90,11 @@
         "resource_manager"            : "FORK",
         "agent_scheduler"             : "CONTINUOUS",
         "agent_spawner"               : "POPEN",
-        "agent_launch_method"         : "FORK",
-        "task_launch_method"          : "FORK",
-        "mpi_launch_method"           : "MPIEXEC",
+        "launch_methods"              : {
+                                         "order"  : ["FORK", "MPIEXEC"],
+                                         "FORK"   : {},
+                                         "MPIEXEC": {}
+                                        },
         "rp_version"                  : "local",
         "virtenv_mode"                : "create",
         "python_dist"                 : "anaconda",
@@ -106,6 +104,7 @@
         "gpus_per_node"               : 1
     },
 
+<<<<<<< HEAD
     "localhost_prte": {
         "description"                 : "Your local machine.",
         "notes"                       : "To use the ssh schema, make sure that ssh access to localhost is enabled.",
@@ -179,6 +178,8 @@
         "gpus_per_node"               : 1
     },
 
+=======
+>>>>>>> devel
     "localhost_funcs": {
         "description"                 : "",
         "notes"                       : "",
@@ -197,9 +198,10 @@
         "resource_manager"            : "FORK",
         "agent_scheduler"             : "NOOP",
         "agent_spawner"               : "FUNCS",
-        "agent_launch_method"         : "SSH",
-        "task_launch_method"          : "FUNCS",
-      # "mpi_launch_method"           : "MPIRUN",
+        "launch_methods"              : {
+                                         "order": ["FUNCS"],
+                                         "FUNCS": {}
+                                        },
         "rp_version"                  : "local",
         "virtenv_mode"                : "create",
         "python_dist"                 : "default",
