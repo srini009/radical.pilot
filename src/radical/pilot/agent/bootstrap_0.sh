@@ -161,7 +161,7 @@ VIRTENV_TGZ="$VIRTENV_VER.tar.gz"
 VIRTENV_TGZ_URL="https://files.pythonhosted.org/packages/66/f0/6867af06d2e2f511e4e1d7094ff663acdebc4f15d4a0cb0fed1007395124/$VIRTENV_TGZ"
 VIRTENV_IS_ACTIVATED=FALSE
 
-VIRTENV_RADICAL_DEPS="pymongo colorama ntplib "\
+VIRTENV_RADICAL_DEPS="pymongo<4 colorama ntplib "\
 "pyzmq netifaces setproctitle msgpack regex PyYAML cffi radical.gtod"
 
 VIRTENV_RADICAL_MODS="pymongo colorama ntplib "\
@@ -276,15 +276,6 @@ create_gtod()
 
 # ------------------------------------------------------------------------------
 #
-<<<<<<< HEAD
-create_unit_prof(){
-
-cat > ./gtod <<EOT
-#!/bin/sh
-$(which radical-gtod)
-EOT
-
-=======
 create_prof(){
 
     cat > ./prof <<EOT
@@ -328,7 +319,6 @@ profile_event()
     printf "%.4f,%s,%s,%s,%s,%s,%s\n" \
         "$now" "$event" "bootstrap_0" "MainThread" "$PILOT_ID" "pilot_state" "$msg" \
         | tee -a "$PROFILE"
->>>>>>> devel
 }
 
 
@@ -383,11 +373,7 @@ waitfor()
     TIMEOUT="$1";  shift
     COMMAND="$*"
 
-<<<<<<< HEAD
-    START=$(date '+%s')
-=======
     START=`echo \`./gtod.sh\` | cut -f 1 -d .`
->>>>>>> devel
     END=$((START + TIMEOUT))
     NOW=$START
 
@@ -404,11 +390,7 @@ waitfor()
         else
             echo "COND ok ($RET)"
         fi
-<<<<<<< HEAD
         NOW=$(date '+%s')
-=======
-        NOW=`echo \`./gtod.sh\` | cut -f 1 -d .`
->>>>>>> devel
     done
 
     if test "$RET" = 0
@@ -1161,7 +1143,7 @@ virtenv_create()
     for dep in $VIRTENV_RADICAL_DEPS
     do
         run_cmd "install $dep" \
-                "$PIP --no-cache-dir install --no-build-isolation $dep" \
+                "$PIP --no-cache-dir install --no-build-isolation '$dep'" \
              || echo "Couldn't install $dep! Lets see how far we get ..."
     done
 
@@ -1627,14 +1609,11 @@ PB1_LDLB="$LD_LIBRARY_PATH"
 # FIXME: By now the pre_process rules are already performed.
 #        We should split the parsing and the execution of those.
 #        "bootstrap start" is here so that $PILOT_ID is known.
-<<<<<<< HEAD
-=======
 # Create header for profile log
 echo 'create gtod, prof'
 create_gtod
 create_prof
 pilot_state="PMGR_ACTIVE_PENDING"
->>>>>>> devel
 profile_event 'bootstrap_0_start'
 
 # NOTE: if the virtenv path contains a symbolic link element, then distutil will
