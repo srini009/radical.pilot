@@ -19,7 +19,7 @@ class IBRun(LaunchMethod):
     def __init__(self, name, lm_cfg, rm_info, log, prof):
 
         self._command  : str  = ''
-        self._node_list: list = self._rm_info.node_list or []
+        self._node_list: list = rm_info.node_list or []
 
         LaunchMethod.__init__(self, name, lm_cfg, rm_info, log, prof)
 
