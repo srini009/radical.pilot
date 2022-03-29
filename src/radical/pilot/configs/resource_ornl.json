@@ -154,8 +154,8 @@
                                          "order": ["JSRUN"],
                                          "JSRUN": {
                                              "pre_exec_cached": [
-                                                 "module unload xl",
-                                                 "module unload xalt"
+                                               # "module unload xl",
+                                               # "module unload xalt"
                                              ]
                                          }
                                         },
@@ -164,6 +164,8 @@
                                          "module unload py-pip",
                                          "module unload py-virtualenv",
                                          "module unload py-setuptools",
+                                         "module unload xl",
+                                         "module unload xalt",
                                          "module load   gcc/9.1.0",
                                          "module load   libzmq/4.3.3",
 <<<<<<< HEAD
