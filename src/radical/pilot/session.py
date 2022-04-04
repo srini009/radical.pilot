@@ -294,7 +294,7 @@ class Session(rs.Session):
         if options.download:
 
             self._log.debug('start download')
-            tgt = os.getcwd()
+            tgt = self._cfg.base
             self.fetch_json    (tgt='%s/%s' % (tgt, self.uid))
             self.fetch_profiles(tgt=tgt)
             self.fetch_logfiles(tgt=tgt)
