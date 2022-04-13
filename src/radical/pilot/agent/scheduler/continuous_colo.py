@@ -8,8 +8,8 @@ import radical.utils as ru
 
 from .continuous import Continuous
 
-from ... import states           as rps
-from ... import task_description as rpcud
+from ... import states    as rps
+from ... import constants as rpc
 
 
 # The BOT Scheduler schedules tasks just like the continuous scheduler (and in
@@ -408,13 +408,13 @@ class ContinuousColo(Continuous):
         pseudo['uid'] = 'pseudo.'
 
         descr = pseudo['description']
-        descr['cpu_process_type'] = rpcud.POSIX  # force single node
-        descr['cpu_thread_type']  = rpcud.POSIX
+        descr['cpu_process_type'] = rpc.POSIX  # force single node
+        descr['cpu_thread_type']  = rpc.POSIX
         descr['cpu_processes']    = 0
         descr['cpu_threads']      = 1
 
-        descr['gpu_process_type'] = rpcud.POSIX  # force single node
-        descr['gpu_thread_type']  = rpcud.POSIX
+        descr['gpu_process_type'] = rpc.POSIX  # force single node
+        descr['gpu_thread_type']  = rpc.POSIX
         descr['gpu_processes']    = 0
         descr['gpu_threads']      = 1
 
