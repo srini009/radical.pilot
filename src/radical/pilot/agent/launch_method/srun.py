@@ -144,7 +144,10 @@ class Srun(LaunchMethod):
                         fout.write(','.join(nodelist))
                         fout.write('\n')
 
-        mapping = '--nodes %d '        % n_nodes \
+        # use `--exclusive` to ensure all tasks get individual resources.
+        # do not use core binding: it triggers warnings on some installations
+        mapping = '--exclusive --cpu-bind=none ' \
+                + '--nodes %d '        % n_nodes \
                 + '--ntasks %d '       % n_tasks \
                 + '--cpus-per-task %d' % n_task_threads
 
