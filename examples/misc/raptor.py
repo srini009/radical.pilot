@@ -42,8 +42,9 @@ if __name__ == '__main__':
     gpn         = cfg.gpn
     n_masters   = cfg.n_masters
     n_workers   = cfg.n_workers
-    masters_pn  = cfg.masters_pn
-    nodes_pw    = cfg.nodes_pw
+    cp_master   = cfg.cp_master
+    cp_worker   = cfg.cp_worker
+    gp_worker   = cfg.gp_worker
     nodes_rp    = cfg.nodes_rp
     workload    = cfg.workload
     tasks_rp    = cfg.tasks_rp
@@ -54,11 +55,11 @@ if __name__ == '__main__':
     session   = rp.Session()
     try:
         pd = rp.PilotDescription(cfg.pilot_descr)
-        pd.cores   = n_masters * (cpn / masters_pn)
+        pd.cores   = n_masters * cp_master
         pd.gpus    = 0
 
-        pd.cores  += n_masters * n_workers * cpn * nodes_pw
-        pd.gpus   += n_masters * n_workers * gpn * nodes_pw
+        pd.cores  += n_masters * n_workers * cp_worker
+        pd.gpus   += n_masters * n_workers * gp_worker
 
         pd.cores  += nodes_agent * cpn
         pd.gpus   += nodes_agent * gpn
@@ -78,7 +79,7 @@ if __name__ == '__main__':
                                                ru.ID_CUSTOM,
                                                ns=session.uid)
             td.arguments      = [cfg_file, i]
-            td.cpu_threads    = int(cpn / masters_pn)
+            td.cpu_threads    = cp_master
             td.input_staging  = [{'source': 'raptor_master.py',
                                   'target': 'raptor_master.py',
                                   'action': rp.TRANSFER,
@@ -106,7 +107,7 @@ if __name__ == '__main__':
         pilot.prepare_env(env_name='ve_raptor',
                           env_spec={'type'   : 'virtualenv',
                                     'version': '3.8',
-                                    'setup'  : ['radical.pilot']})
+                                    'setup'  : ['radical.pilot', 'mpy4py']})
 
         # submit some test tasks
         tds = list()

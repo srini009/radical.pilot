@@ -114,7 +114,7 @@
         "project"  : "MCB20006",
         "queue"    : "development",
         "schema"   : "ssh",
-        "cores"    : 64
+        "cores"    : 112
     },
 
     "xsede.longhorn" : {

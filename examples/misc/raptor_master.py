@@ -265,7 +265,8 @@ if __name__ == '__main__':
     cfg.rank     = int(sys.argv[2])
 
     n_workers  = cfg.n_workers
-    nodes_pw   = cfg.nodes_pw
+    cp_worker  = cfg.cp_worker
+    gp_worker  = cfg.gp_worker
     cpn        = cfg.cpn
     gpn        = cfg.gpn
     descr      = cfg.worker_descr
@@ -284,8 +285,8 @@ if __name__ == '__main__':
     # those workers and execute them.  Insert one smaller worker (see above)
     # NOTE: this assumes a certain worker size / layout
     print('workers: %d' % n_workers)
-    descr['cpu_processes'] = nodes_pw * cpn
-    descr['gpu_processes'] = nodes_pw * gpn
+    descr['cpu_processes'] = cp_worker
+    descr['gpu_processes'] = gp_worker
   # descr['cpu_processes'] = 28
   # descr['gpu_processes'] = 0
     master.submit_workers(descr=descr, count=n_workers)

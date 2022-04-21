@@ -98,8 +98,23 @@ class Srun(LaunchMethod):
     #
     def get_launcher_env(self):
 
-        return ['unset SLURM_JOB_NUM_NODES',  # avoid nodelist warning
-                '. $RP_PILOT_SANDBOX/%s' % self._env_sh]
+        return [
+                '. $RP_PILOT_SANDBOX/%s' % self._env_sh,
+
+                # avoid clash with pilot env
+                'unset SLURM_JOB_NUM_NODES',
+                'unset SLURM_JOB_NAME',
+                'unset SLURM_JOB_NODELIST',
+                'unset SLURM_JOB_CPUS_PER_NODE',
+                'unset SLURM_JOB_CPUS_PER_NODE',
+
+                'unset SLURM_NNODES',
+                'unset SLURM_NODELIST',
+                'unset SLURM_NPROCS',
+                'unset SLURM_NTASKS',
+                'unset SLURM_NTASKS_PER_NODE',
+                'unset SLURM_TASKS_PER_NODE',
+               ]
 
 
     # --------------------------------------------------------------------------
@@ -146,7 +161,8 @@ class Srun(LaunchMethod):
 
         # use `--exclusive` to ensure all tasks get individual resources.
         # do not use core binding: it triggers warnings on some installations
-        mapping = '--ntasks %d '       % n_tasks \
+        mapping = '--exclusive ' \
+                + '--ntasks %d '       % n_tasks \
                 + '--cpus-per-task %d' % n_task_threads
 
         # check that gpus were requested to be allocated
