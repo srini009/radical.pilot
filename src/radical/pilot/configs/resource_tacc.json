@@ -23,31 +23,31 @@
         "agent_scheduler"             : "CONTINUOUS",
         "agent_spawner"               : "POPEN",
         "launch_methods"              : {
-                                         "order": ["SRUN", "MPIRUN"],
+                                         "order": ["MPIRUN", "SRUN"],
                                          "SRUN" : {
                                              "pre_exec_cached": [
-                                                 "module load TACC",
-                                                 "module unload intel",
-                                                 "module unload impi",
-                                                 "module load   intel",
-                                                 "module load   impi"
+                                               # "module load TACC",
+                                               # "module unload intel",
+                                               # "module unload impi",
+                                               # "module load   intel",
+                                               # "module load   impi"
                                              ]
                                          },
                                          "MPIRUN" : {
                                              "pre_exec_cached": [
-                                                 "module load TACC",
-                                                 "module unload intel",
-                                                 "module unload impi",
-                                                 "module load   intel",
-                                                 "module load   impi"
+                                               # "module load TACC",
+                                               # "module unload intel",
+                                               # "module unload impi",
+                                               # "module load   intel",
+                                               # "module load   impi"
                                              ]
                                          }
                                         },
         "pre_bootstrap_0"             :[
-                                        "module unload intel",
-                                        "module unload impi",
-                                        "module load   intel",
-                                        "module load   impi",
+                                      # "module unload intel",
+                                      # "module unload impi",
+                                      # "module load   intel",
+                                      # "module load   impi",
                                         "module load   python3/3.9.2"
                                         ],
         "default_remote_workdir"      : "$SCRATCH",

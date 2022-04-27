@@ -94,77 +94,77 @@ class MyMaster(rp.raptor.Master):
                 'cpu_process_type': rp.MPI,
                 'executable'      : '/bin/sh',
                 'arguments'       : ['-c',
-                                     'echo "hello $RP_RANK/$RP_RANKS: $RP_TASK_ID"']}))
+                                     "echo 'hello $RP_RANK/$RP_RANKS: $RP_TASK_ID'"]}))
 
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.call.m.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_FUNCTION,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'function'        : 'hello_mpi',
-                'kwargs'          : {'msg': 'task.call.m.%06d' % i},
-                'scheduler'       : 'master.000000'}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.mpi_ser_func.m.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_FUNCTION,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'function'        : func_mpi(msg='task.call.m.%06d' % i, comm=None,
-                                                                         sleep=0),
-                'scheduler'       : 'master.000000'}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.ser_func.m.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_FUNCTION,
-                'cpu_processes'   : 2,
-                'function'        : func_non_mpi(i),
-                'scheduler'       : 'master.000000'}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.eval.m.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_EVAL,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'code'            :
-                    'print("hello %s/%s: %s" % (os.environ["RP_RANK"],'
-                    'os.environ["RP_RANKS"], os.environ["RP_TASK_ID"]))',
-                'scheduler'       : 'master.000000'}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.exec.m.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_EXEC,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'code'            :
-                    'import os\nprint("hello %s/%s: %s" % (os.environ["RP_RANK"],'
-                    'os.environ["RP_RANKS"], os.environ["RP_TASK_ID"]))',
-                'scheduler'       : 'master.000000'}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.proc.m.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_PROC,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'executable'      : '/bin/sh',
-                'arguments'       : ['-c', 'echo "hello $RP_RANK/$RP_RANKS: '
-                                           '$RP_TASK_ID"'],
-                'scheduler'       : 'master.000000'}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.shell.m.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_SHELL,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'command'         : 'echo "hello $RP_RANK/$RP_RANKS: $RP_TASK_ID"',
-                'scheduler'       : 'master.000000'}))
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.call.m.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_FUNCTION,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'function'        : 'hello_mpi',
+          #     'kwargs'          : {'msg': 'task.call.m.%06d' % i},
+          #     'scheduler'       : 'master.000000'}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.mpi_ser_func.m.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_FUNCTION,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'function'        : func_mpi(msg='task.call.m.%06d' % i, comm=None,
+          #                                                              sleep=0),
+          #     'scheduler'       : 'master.000000'}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.ser_func.m.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_FUNCTION,
+          #     'cpu_processes'   : 2,
+          #     'function'        : func_non_mpi(i),
+          #     'scheduler'       : 'master.000000'}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.eval.m.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_EVAL,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'code'            :
+          #         'print("hello %s/%s: %s" % (os.environ["RP_RANK"],'
+          #         'os.environ["RP_RANKS"], os.environ["RP_TASK_ID"]))',
+          #     'scheduler'       : 'master.000000'}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.exec.m.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_EXEC,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'code'            :
+          #         'import os\nprint("hello %s/%s: %s" % (os.environ["RP_RANK"],'
+          #         'os.environ["RP_RANKS"], os.environ["RP_TASK_ID"]))',
+          #     'scheduler'       : 'master.000000'}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.proc.m.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_PROC,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'executable'      : '/bin/sh',
+          #     'arguments'       : ['-c', 'echo "hello $RP_RANK/$RP_RANKS: '
+          #                                '$RP_TASK_ID"'],
+          #     'scheduler'       : 'master.000000'}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.shell.m.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_SHELL,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'command'         : 'echo "hello $RP_RANK/$RP_RANKS: $RP_TASK_ID"',
+          #     'scheduler'       : 'master.000000'}))
 
 
         self.submit_tasks(tds)
@@ -213,8 +213,7 @@ class MyMaster(rp.raptor.Master):
                      'cpu_processes'   : 2,
                      'cpu_process_type': rp.MPI,
                      'executable'      : '/bin/sh',
-                     'arguments'       : ['-c', 'echo "hello $RP_RANK/$RP_RANKS: '
-                                                '$RP_TASK_ID"'],
+                     'arguments'       : ['-c', "echo 'hello $RP_RANK/$RP_RANKS: $RP_TASK_ID'"],
                      'scheduler'       : 'master.000000'}))
 
         return tasks
@@ -223,6 +222,10 @@ class MyMaster(rp.raptor.Master):
     # --------------------------------------------------------------------------
     #
     def result_cb(self, tasks):
+
+        print('=== result cb: %s' % len(tasks))
+        with open('t.out', 'w') as fout:
+            write('=== result cb: %s\n' % len(tasks))
 
         for task in tasks:
 
@@ -233,7 +236,7 @@ class MyMaster(rp.raptor.Master):
             self._log.debug('result_cb  %s: %s [%s] [%s]',
                             task['uid'],
                             task['state'],
-                            sorted(task['stdout']),
+                            task['stdout'],
                             task['return_value'])
 
             print('result_cb %s: %s %s %s' % (task['uid'], task['state'],

@@ -140,6 +140,8 @@ class Default(AgentStagingOutputComponent):
                    'agent' : list()}
 
         for task in tasks:
+            import pprint
+            self._log.debug('=== advance %s: %s', task['uid'], pprint.pformat(task))
             buckets[task['origin']].append(task)
 
         if buckets['client']:

@@ -29,17 +29,17 @@ while getopts "e:p:P:v:m:d" OPTION; do
     case $OPTION in
         e)  ENV_SETUP="$OPTARG" ;;
         p)  PREFIX="$OPTARG"    ;;
-        P)  pre_exec "$OPTARG"  ;;
+        P)  pre_exec "$OPTARG" || exit 1 ;;
         v)  VERSION="$OPTARG"   ;;
         m)  MODULES="$OPTARG"   ;;
         d)  DEFAULTS=True       ;;
         *)  echo "Unknown option: '$OPTION'='$OPTARG'"
-            return 1;;
+            exit 1;;
     esac
 done
 
 test -z "$VERSION" && VERSION='3.8'
-test -z "$PREFIX"  && echo "no prefix" && exit
+test -z "$PREFIX"  && echo "no prefix" && exit 1
 
 unset PYTHONPATH
 echo "[$0 $*]"

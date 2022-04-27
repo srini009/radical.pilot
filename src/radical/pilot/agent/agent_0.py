@@ -813,6 +813,8 @@ class Agent_0(rpu.Worker):
         if path: ve_path = path
         else   : ve_path = ve_local_path
 
+        path = path.rstrip('/')
+
         if not os.path.isdir(ve_path):
             # ve does not exist - create
             rp_cse = ru.which('radical-pilot-create-static-ve')
@@ -821,10 +823,12 @@ class Agent_0(rpu.Worker):
 
             self._log.debug('env cmd: %s', ve_cmd)
             out, err, ret = ru.sh_callout(ve_cmd, shell=True)
+            self._log.debug('    ret: %s', ret)
             self._log.debug('    out: %s', out)
             self._log.debug('    err: %s', err)
 
             if ret:
+                self._log.error('prepare_env failed: \n%s\n%s',out, err)
                 raise RuntimeError('prepare_env failed: \n%s\n%s\n' % (out, err))
 
         # if the ve lives outside of the pilot sandbox, link it

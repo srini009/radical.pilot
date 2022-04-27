@@ -71,8 +71,29 @@ if __name__ == '__main__':
 
         pd.redis_link = ''
 
-        tds = list()
+        pmgr  = rp.PilotManager(session=session)
+        tmgr  = rp.TaskManager(session=session)
+        pilot = pmgr.submit_pilots(pd)
 
+      # pmgr.wait_pilots(uid=pilot.uid, state=[rp.PMGR_ACTIVE])
+        pilot.stage_in({'source': ru.which('radical-pilot-hello.sh'),
+                        'target': 'radical-pilot-hello.sh',
+                        'action': rp.TRANSFER})
+        pilot.prepare_env(env_name='ve_raptor',
+                          env_spec={'type'    : 'virtualenv',
+                                    'version' : '3.9',
+                                    'path'    : '/scratch1/07305/rpilot/radical.pilot.sandbox/ve_raptor',
+                                    'pre_exec': [
+                                        'module load python3/3.9.2',
+                                        'pwd',
+                                        'ls -la ..',
+                                        'rm -rf /tmp/radical*',
+                                        'tar xf ../radical.pilot-1.14.0.tar.gz -C /tmp',
+                                        'ls -la /tmp/radical.pilot/'
+                                                ],
+                                    'setup'  : ['/tmp/radical.pilot-1.14.0/']})
+
+        tds = list()
         for i in range(n_masters):
             td = rp.TaskDescription(cfg.master_descr)
             td.uid            = ru.generate_id('master.%(item_counter)06d',
@@ -95,19 +116,8 @@ if __name__ == '__main__':
                                 ]
             tds.append(td)
 
-        pmgr  = rp.PilotManager(session=session)
-        tmgr  = rp.TaskManager(session=session)
-        pilot = pmgr.submit_pilots(pd)
-        task  = tmgr.submit_tasks(tds)
+        masters = tmgr.submit_tasks(tds)
 
-      # pmgr.wait_pilots(uid=pilot.uid, state=[rp.PMGR_ACTIVE])
-        pilot.stage_in({'source': ru.which('radical-pilot-hello.sh'),
-                        'target': 'radical-pilot-hello.sh',
-                        'action': rp.TRANSFER})
-        pilot.prepare_env(env_name='ve_raptor',
-                          env_spec={'type'   : 'virtualenv',
-                                    'version': '3.8',
-                                    'setup'  : ['radical.pilot', 'mpy4py']})
 
         # submit some test tasks
         tds = list()
@@ -121,16 +131,16 @@ if __name__ == '__main__':
                 'cpu_process_type': rp.MPI,
                 'executable'      : '/bin/sh',
                 'arguments'       : ['-c',
-                                     'echo "hello $RP_RANK/$RP_RANKS: $RP_TASK_ID"']}))
+                                     "echo 'hello $RP_RANK/$RP_RANKS: $RP_TASK_ID'"]}))
 
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.call.c.1.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_FUNCTION,
-                'function'        : 'hello',
-                'kwargs'          : {'msg': 'task.call.c.1.%06d' % i},
-                'scheduler'       : 'master.%06d' % (i % n_masters)}))
-
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.call.c.1.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_FUNCTION,
+          #     'function'        : 'hello',
+          #     'kwargs'          : {'msg': 'task.call.c.1.%06d' % i},
+          #     'scheduler'       : 'master.%06d' % (i % n_masters)}))
+          #
             tds.append(rp.TaskDescription({
                 'uid'             : 'task.call.c.2.%06d' % i,
               # 'timeout'         : 10,
@@ -141,73 +151,73 @@ if __name__ == '__main__':
                 'kwargs'          : {'msg': 'task.call.c.2/%06d' % i},
                 'scheduler'       : 'master.%06d' % (i % n_masters)}))
 
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.call.c.3.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_FUNCTION,
-                'function'        : 'my_hello',
-                'kwargs'          : {'uid': 'task.call.c.3/%06d' % i},
-                'scheduler'       : 'master.%06d' % (i % n_masters)}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.mpi_ser_func.c.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_FUNCTION,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'function'        : func_mpi(msg='task.call.c.%06d' % i, comm=None,
-                                                                         sleep=0),
-                'scheduler'       : 'master.%06d' % (i % n_masters)}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.ser_func.c.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_FUNCTION,
-                'cpu_processes'   : 2,
-                'function'        : func_non_mpi(i),
-                'scheduler'       : 'master.%06d' % (i % n_masters)}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.eval.c.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_EVAL,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'code'            :
-                    'print("hello %s/%s: %s" % (os.environ["RP_RANK"],'
-                    'os.environ["RP_RANKS"], os.environ["RP_TASK_ID"]))',
-                'scheduler'       : 'master.%06d' % (i % n_masters)}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.exec.c.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_EXEC,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'code'            :
-                    'import os\nprint("hello %s/%s: %s" % (os.environ["RP_RANK"],'
-                    'os.environ["RP_RANKS"], os.environ["RP_TASK_ID"]))',
-                'scheduler'       : 'master.%06d' % (i % n_masters)}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.proc.c.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_PROC,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'executable'      : '/bin/sh',
-                'arguments'       : ['-c', 'echo "hello $RP_RANK/$RP_RANKS: '
-                                           '$RP_TASK_ID"'],
-                'scheduler'       : 'master.%06d' % (i % n_masters)}))
-
-            tds.append(rp.TaskDescription({
-                'uid'             : 'task.shell.c.%06d' % i,
-              # 'timeout'         : 10,
-                'mode'            : rp.TASK_SHELL,
-                'cpu_processes'   : 2,
-                'cpu_process_type': rp.MPI,
-                'command'         : 'echo "hello $RP_RANK/$RP_RANKS: $RP_TASK_ID"',
-                'scheduler'       : 'master.%06d' % (i % n_masters)}))
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.call.c.3.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_FUNCTION,
+          #     'function'        : 'my_hello',
+          #     'kwargs'          : {'uid': 'task.call.c.3/%06d' % i},
+          #     'scheduler'       : 'master.%06d' % (i % n_masters)}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.mpi_ser_func.c.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_FUNCTION,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'function'        : func_mpi(msg='task.call.c.%06d' % i, comm=None,
+          #                                                              sleep=0),
+          #     'scheduler'       : 'master.%06d' % (i % n_masters)}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.ser_func.c.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_FUNCTION,
+          #     'cpu_processes'   : 2,
+          #     'function'        : func_non_mpi(i),
+          #     'scheduler'       : 'master.%06d' % (i % n_masters)}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.eval.c.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_EVAL,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'code'            :
+          #         'print("hello %s/%s: %s" % (os.environ["RP_RANK"],'
+          #         'os.environ["RP_RANKS"], os.environ["RP_TASK_ID"]))',
+          #     'scheduler'       : 'master.%06d' % (i % n_masters)}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.exec.c.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_EXEC,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'code'            :
+          #         'import os\nprint("hello %s/%s: %s" % (os.environ["RP_RANK"],'
+          #         'os.environ["RP_RANKS"], os.environ["RP_TASK_ID"]))',
+          #     'scheduler'       : 'master.%06d' % (i % n_masters)}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.proc.c.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_PROC,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'executable'      : '/bin/sh',
+          #     'arguments'       : ['-c', 'echo "hello $RP_RANK/$RP_RANKS: '
+          #                                '$RP_TASK_ID"'],
+          #     'scheduler'       : 'master.%06d' % (i % n_masters)}))
+          #
+          # tds.append(rp.TaskDescription({
+          #     'uid'             : 'task.shell.c.%06d' % i,
+          #   # 'timeout'         : 10,
+          #     'mode'            : rp.TASK_SHELL,
+          #     'cpu_processes'   : 2,
+          #     'cpu_process_type': rp.MPI,
+          #     'command'         : 'echo "hello $RP_RANK/$RP_RANKS: $RP_TASK_ID"',
+          #     'scheduler'       : 'master.%06d' % (i % n_masters)}))
 
         tasks = tmgr.submit_tasks(tds)
 

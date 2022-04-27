@@ -283,8 +283,8 @@ class Master(rpu.Component):
         '''
         with self._lock:
 
-            tasks    = list()
-            base     = os.environ['RP_TASK_ID']
+            tasks = list()
+            base  = os.environ['RP_TASK_ID']
 
             cfg            = copy.deepcopy(self._cfg)
             cfg['descr']   = descr
@@ -306,6 +306,7 @@ class Master(rpu.Component):
                 td['cpu_thread_type']  = rpc.POSIX
                 td['cpu_threads']      = descr.get('cpu_threads', 1)
                 td['gpu_processes']    = descr.get('gpu_processes', 0)
+                td['pre_exec']         = descr.get('pre_exec', [])
                 td['environment']      = descr.get('environment', {})
 
                 # this master is obviously running in a suitable python3 env,
@@ -329,6 +330,7 @@ class Master(rpu.Component):
                 task['description']       = TaskDescription(td).as_dict()
                 task['state']             = rps.AGENT_STAGING_INPUT_PENDING
                 task['status']            = 'NEW'
+                task['origin']            = 'raptor'
                 task['type']              = 'task'
                 task['uid']               = uid
                 task['task_sandbox_path'] = sbox
