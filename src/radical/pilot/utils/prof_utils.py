@@ -618,7 +618,7 @@ def get_session_description(sid, src=None, dburl=None):
         fix_uids(json)
     fix_json(json)
 
-    assert(sid == json['session']['uid']), 'sid inconsistent'
+    assert(sid == json['session'][0]['uid']), 'sid inconsistent'
 
     ret             = dict()
     ret['entities'] = dict()
@@ -626,7 +626,7 @@ def get_session_description(sid, src=None, dburl=None):
     tree      = dict()
     tree[sid] = {'uid'      : sid,
                  'etype'    : 'session',
-                 'cfg'      : json['session']['cfg'],
+                 'cfg'      : json['session'][0]['cfg'],
                  'has'      : ['tmgr', 'pmgr'],
                  'children' : list()
                 }
