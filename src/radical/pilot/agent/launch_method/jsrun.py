@@ -1,7 +1,8 @@
 
-__copyright__ = "Copyright 2016, http://radical.rutgers.edu"
-__license__   = "MIT"
+__copyright__ = 'Copyright 2016-2021, The RADICAL-Cybertools Team'
+__license__   = 'MIT'
 
+import os
 
 import radical.utils as ru
 
@@ -167,12 +168,15 @@ class JSRUN(LaunchMethod):
         else:
             smpiargs = ''
 
-        rs_fname = self._create_resource_set_file(slots=slots, uid=uid,
-                                                  sandbox=sbox)
+        cmd_options = (' --erf_input %s %s %s' % (
+            self._create_resource_set_file(slots=slots, uid=uid, sandbox=sbox),
+            smpiargs,
+            exec_path)).rstrip()
 
-        cmd = '%s --erf_input %s %s %s' % (self._command, rs_fname,
-                                           smpiargs, exec_path)
-        return cmd.rstrip()
+        if os.environ.get('JSM_ROOT') or 'JSM_ROOT' in td['environment']:
+            return ['$JSM_ROOT/bin/jsm &', '$JSM_ROOT/bin/jsrun' + cmd_options]
+        else:
+            return self._command + cmd_options
 
 
     # --------------------------------------------------------------------------
