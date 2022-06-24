@@ -160,18 +160,22 @@ class JSRUN(LaunchMethod):
         # CUDA without MPI, use jsrun --smpiargs="off"
         #
         # We only set this for CUDA tasks
-        if 'cuda' in td.get('gpu_thread_type', '').lower():
-            if 'mpi' in td.get('gpu_process_type', '').lower():
-                smpiargs = '--smpiargs="-gpu"'
-            else:
-                smpiargs = '--smpiargs="off"'
-        else:
-            smpiargs = ''
+        # if 'cuda' in td.get('gpu_thread_type', '').lower():
+        #     if 'mpi' in td.get('gpu_process_type', '').lower():
+        #         smpiargs = '--smpiargs="-gpu"'
+        #     else:
+        #         smpiargs = '--smpiargs="off"'
+        # else:
+        #     smpiargs = ''
 
-        cmd_options = (' --erf_input %s %s %s' % (
-            self._create_resource_set_file(slots=slots, uid=uid, sandbox=sbox),
-            smpiargs,
-            exec_path)).rstrip()
+        # cmd_options = (' --erf_input %s %s %s' % (
+        #     self._create_resource_set_file(slots=slots, uid=uid, sandbox=sbox),
+        #     smpiargs,
+        #     exec_path)).rstrip()
+
+        cmd_options = ' --bind rs -n{} -p{} -r6 -g1 -c1'.format(
+            td['cpu_processes'], td['cpu_processes'])
+        cmd_options += (' %s' % exec_path).rstrip()
 
         if os.environ.get('JSM_ROOT') or 'JSM_ROOT' in td['environment']:
             return ['$JSM_ROOT/bin/jsm &', '$JSM_ROOT/bin/jsrun' + cmd_options]
